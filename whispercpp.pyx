@@ -16,7 +16,7 @@ cimport numpy as cnp
 cdef int SAMPLE_RATE = 16000
 cdef char* TEST_FILE = 'test.wav'
 cdef char* DEFAULT_MODEL = 'tiny'
-cdef char* LANGUAGE = b'fr'
+cdef char* LANGUAGE = b'en'
 cdef int N_THREADS = os.cpu_count()
 
 MODELS = {
@@ -57,8 +57,7 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] load_audio(bytes file, int sr 
                 capture_stderr=True
             )
         )[0]
-    except Exception as e:
-        print(f"Ffmpeg error: '{e}'")
+    except:
         raise RuntimeError(f"File '{file}' not found")
 
     cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] frames = (
