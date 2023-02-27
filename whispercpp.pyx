@@ -44,7 +44,7 @@ def download_model(model):
 
 cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] load_audio(bytes file, int sr = SAMPLE_RATE):
     try:
-        out = (
+        out, err = (
             ffmpeg.input(file, threads=0)
             .output(
                 "-", format="s16le",
@@ -56,7 +56,9 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] load_audio(bytes file, int sr 
                 capture_stdout=True,
                 capture_stderr=True
             )
-        )[0]
+        )
+        print("ffmpeg err: ", err)
+        out = out[0]
     except:
         raise RuntimeError(f"File '{file}' not found")
 
