@@ -121,7 +121,6 @@ cdef class Whisper:
         cdef bytes model_b = str(model_path).encode('utf8')
         self.ctx = whisper_init(model_b)
         self.params = default_params()
-        whisper_print_system_info()
 
     def __dealloc__(self):
         whisper_free(self.ctx)
