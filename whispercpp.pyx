@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 MODELS_DIR = os.environ.get("WHISPERCPP_CACHE", str(Path('~/.ggml-models').expanduser()))
-print("Saving models to:", MODELS_DIR)
+print(f"MODELS_DIR: {MODELS_DIR}")
 
 
 cimport numpy as cnp
@@ -107,7 +107,7 @@ cdef whisper_full_params default_params() nogil:
         whisper_sampling_strategy.WHISPER_SAMPLING_GREEDY
     )
     params.print_realtime = False
-    params.print_progress = True
+    params.print_progress = False
     params.translate = False
     params.language = <const char *> LANGUAGE
     n_threads = N_THREADS
@@ -156,10 +156,15 @@ cdef class Whisper:
             start = float(whisper_full_get_segment_t0(self.ctx, i)) / 100
             end = float(whisper_full_get_segment_t1(self.ctx, i)) / 100
             segments.append({ 'text': text, 'start': start, 'end': end })
+
+        language = <bytes>self.params.language
+        if len(segments) == 0:
+            print(f"Warning: no segments found.")
+            return { 'text': '', 'start': 0, 'end': 0, 'segments': [], 'language': language.decode()}
+
         text = ''.join([s['text'] for s in segments])
         start = segments[0]['start']
         end = segments[-1]['end']
-        language = <bytes>self.params.language
         return { 'text': text, 'start': start, 'end': end, 'segments': segments, 'language': language.decode() }
     
     def extract_text(self, int res):
